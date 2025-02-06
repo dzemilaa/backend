@@ -10,7 +10,7 @@ ARG BUILD_CONFIGURATION=Release
 ENV ASPNETCORE_ENVIRONMENT=Development
 WORKDIR /src
 
-COPY ["backend.csproj", "./backend/"]
+COPY ["./backend/backend.csproj", "."]
 RUN dotnet restore "./backend/backend.csproj"
 
 COPY . .
