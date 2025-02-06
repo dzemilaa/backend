@@ -1,0 +1,12 @@
+﻿namespace backend.Models
+{
+    public class ReviewDto
+    {
+        public int OrderId { get; set; }
+        public int UserId { get; set; }
+        public string ReviewText { get; set; }
+
+        public List<int> ProductIds { get; set; }
+    }
+   
+}
