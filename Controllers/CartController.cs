@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-using System.Data.SqlClient;
-
+using Microsoft.Data.SqlClient;
 namespace backend.Controllers
 {
     [Route("api/[controller]")]

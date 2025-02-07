@@ -1,17 +1,15 @@
-﻿using backend.Data;
+using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using backend.Models;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
-// Povezivanje na bazu
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BazaCon")));
 
 // Dodavanje kontrolera
 builder.Services.AddControllers();
@@ -20,7 +18,7 @@ builder.Services.AddSwaggerGen();
 
 // Konfiguracija JWT autentifikacije
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]); // Tajni klju� za JWT
+var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]); // Tajni klju? za JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,7 +50,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-  app.UseDeveloperExceptionPage();
+    app.UseDeveloperExceptionPage();
 }
 
 
@@ -67,7 +65,7 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
- 
+
 });
 app.Use(async (context, next) =>
 {
