@@ -1,9 +1,9 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -86,8 +86,8 @@ namespace backend.Controllers
         [Route("registration")]
         public async Task<IActionResult> registration(Registration registration)
         {
-            SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-            SqlCommand cmd = new SqlCommand("INSERT INTO Registration (UserName, Password, Email, IsActive, IsVerified) VALUES (@UserName, @Password, @Email, @IsActive, @IsVerified)", con);
+            NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
+            NpgsqlCommand cmd = new NpgsqlCommand("INSERT INTO Registration (UserName, Password, Email, IsActive, IsVerified) VALUES (@UserName, @Password, @Email, @IsActive, @IsVerified)", con);
             cmd.Parameters.AddWithValue("@UserName", registration.UserName);
             cmd.Parameters.AddWithValue("@Password", registration.Password);
             cmd.Parameters.AddWithValue("@Email", registration.Email);
@@ -133,8 +133,8 @@ namespace backend.Controllers
 
                 var email = principal.FindFirstValue(ClaimTypes.Email);
 
-                SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-                SqlCommand cmd = new SqlCommand("UPDATE Registration SET IsVerified = 1 WHERE Email = @Email", con);
+                NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
+                NpgsqlCommand cmd = new NpgsqlCommand("UPDATE Registration SET IsVerified = 1 WHERE Email = @Email", con);
                 cmd.Parameters.AddWithValue("@Email", email);
 
                 con.Open();
@@ -183,9 +183,8 @@ namespace backend.Controllers
         [Route("login")]
         public IActionResult login(Login registration)
         {
-            SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-            SqlDataAdapter da = new SqlDataAdapter(
-                "SELECT * FROM Registration WHERE Email=@Email AND Password=@Password AND IsActive=1 AND IsVerified=1", con);
+            NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
+            NpgsqlDataAdapter da = new NpgsqlDataAdapter("SELECT * FROM Registration WHERE Email=@Email AND Password=@Password AND IsActive=1 AND IsVerified=1", con);
             da.SelectCommand.Parameters.AddWithValue("@Email", registration.Email);
             da.SelectCommand.Parameters.AddWithValue("@Password", registration.Password);
             DataTable dt = new DataTable();
@@ -222,3 +221,4 @@ namespace backend.Controllers
         }
     }
 }
+

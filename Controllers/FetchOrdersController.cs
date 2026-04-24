@@ -1,7 +1,7 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.Linq;
 
 namespace backend.Controllers
@@ -28,15 +28,15 @@ namespace backend.Controllers
 
             List<dynamic> userOrders = new List<dynamic>();
 
-            using (var conn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+            using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
             {
                 string query = @"
         SELECT o.Id, o.Address, o.TotalAmount, o.OrderDate, o.Status, o.Image 
-        FROM [Order] o 
+        FROM ""Order"" o 
         WHERE o.UserId = @UserId 
         ORDER BY o.OrderDate DESC";
 
-                var command = new SqlCommand(query, conn);
+                var command = new NpgsqlCommand(query, conn);
                 command.Parameters.AddWithValue("@UserId", userId);
 
                 try
@@ -54,11 +54,11 @@ namespace backend.Controllers
                             string image = reader["Image"] != DBNull.Value ? reader["Image"].ToString() : null;
 
                          
-                            using (var itemConn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+                            using (var itemConn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
                             {
                                 itemConn.Open();
                                 var orderItems = new List<dynamic>();
-                                var itemsCommand = new SqlCommand(@"
+                                var itemsCommand = new NpgsqlCommand(@"
                         SELECT oi.ProductId, oi.Quantity, oi.Price, oi.Image, p.Name, p.Description, p.Category 
                         FROM OrderItems oi 
                         INNER JOIN Product p ON oi.ProductId = p.ProductId
@@ -114,3 +114,4 @@ namespace backend.Controllers
         }
     }
 }
+

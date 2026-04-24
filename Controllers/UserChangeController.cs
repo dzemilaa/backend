@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Microsoft.Extensions.Configuration;
 
 namespace backend.Controllers
@@ -23,11 +23,11 @@ namespace backend.Controllers
         [HttpPut("ChangeUsername")]
         public IActionResult ChangeUsername(int id, string newUsername)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
                 var query = "UPDATE Registration SET UserName = @NewUsername WHERE ID = @Id";
-                using (var command = new SqlCommand(query, connection))
+                using (var command = new NpgsqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@NewUsername", newUsername);
                     command.Parameters.AddWithValue("@Id", id);
@@ -44,11 +44,11 @@ namespace backend.Controllers
         [HttpPut("ChangeEmail")]
         public IActionResult ChangeEmail(int id, string newEmail)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
                 var query = "UPDATE Registration SET Email = @NewEmail WHERE ID = @Id";
-                using (var command = new SqlCommand(query, connection))
+                using (var command = new NpgsqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@NewEmail", newEmail);
                     command.Parameters.AddWithValue("@Id", id);
@@ -64,7 +64,7 @@ namespace backend.Controllers
         [HttpDelete("DeleteProfile")]
         public IActionResult DeleteProfile(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -73,31 +73,31 @@ namespace backend.Controllers
                     try
                     {
                        
-                        var deleteReviewProductsQuery = "DELETE FROM ReviewProducts WHERE ReviewId IN (SELECT ReviewId FROM Reviews WHERE OrderId IN (SELECT OrderId FROM [Order] WHERE UserId = @Id))";
-                        using (var deleteReviewProductsCommand = new SqlCommand(deleteReviewProductsQuery, connection, transaction))
+                        var deleteReviewProductsQuery = "DELETE FROM ReviewProducts WHERE ReviewId IN (SELECT ReviewId FROM Reviews WHERE OrderId IN (SELECT OrderId FROM \"Order\" WHERE UserId = @Id))";
+                        using (var deleteReviewProductsCommand = new NpgsqlCommand(deleteReviewProductsQuery, connection, transaction))
                         {
                             deleteReviewProductsCommand.Parameters.AddWithValue("@Id", id);
                             deleteReviewProductsCommand.ExecuteNonQuery();
                         }
 
-                        var deleteReviewsQuery = "DELETE FROM Reviews WHERE OrderId IN (SELECT OrderId FROM [Order] WHERE UserId = @Id)";
-                        using (var deleteReviewsCommand = new SqlCommand(deleteReviewsQuery, connection, transaction))
+                        var deleteReviewsQuery = "DELETE FROM Reviews WHERE OrderId IN (SELECT OrderId FROM \"Order\" WHERE UserId = @Id)";
+                        using (var deleteReviewsCommand = new NpgsqlCommand(deleteReviewsQuery, connection, transaction))
                         {
                             deleteReviewsCommand.Parameters.AddWithValue("@Id", id);
                             deleteReviewsCommand.ExecuteNonQuery();
                         }
 
                       
-                        var deleteOrderItemsQuery = "DELETE FROM OrderItems WHERE OrderId IN (SELECT OrderId FROM [Order] WHERE UserId = @Id)";
-                        using (var deleteOrderItemsCommand = new SqlCommand(deleteOrderItemsQuery, connection, transaction))
+                        var deleteOrderItemsQuery = "DELETE FROM OrderItems WHERE OrderId IN (SELECT OrderId FROM \"Order\" WHERE UserId = @Id)";
+                        using (var deleteOrderItemsCommand = new NpgsqlCommand(deleteOrderItemsQuery, connection, transaction))
                         {
                             deleteOrderItemsCommand.Parameters.AddWithValue("@Id", id);
                             deleteOrderItemsCommand.ExecuteNonQuery();
                         }
 
                        
-                        var deleteOrdersQuery = "DELETE FROM [Order] WHERE UserId = @Id";
-                        using (var deleteOrdersCommand = new SqlCommand(deleteOrdersQuery, connection, transaction))
+                        var deleteOrdersQuery = "DELETE FROM \"Order\" WHERE UserId = @Id";
+                        using (var deleteOrdersCommand = new NpgsqlCommand(deleteOrdersQuery, connection, transaction))
                         {
                             deleteOrdersCommand.Parameters.AddWithValue("@Id", id);
                             deleteOrdersCommand.ExecuteNonQuery();
@@ -105,7 +105,7 @@ namespace backend.Controllers
 
                   
                         var deleteUserQuery = "DELETE FROM Registration WHERE ID = @Id";
-                        using (var deleteUserCommand = new SqlCommand(deleteUserQuery, connection, transaction))
+                        using (var deleteUserCommand = new NpgsqlCommand(deleteUserQuery, connection, transaction))
                         {
                             deleteUserCommand.Parameters.AddWithValue("@Id", id);
                             int rowsAffected = deleteUserCommand.ExecuteNonQuery();
@@ -138,11 +138,11 @@ namespace backend.Controllers
         [HttpPut("ChangePassword")]
         public IActionResult ChangePassword(int id, string oldPassword, string newPassword)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
                 var selectQuery = "SELECT Password FROM Registration WHERE ID = @Id";
-                using (var selectCommand = new SqlCommand(selectQuery, connection))
+                using (var selectCommand = new NpgsqlCommand(selectQuery, connection))
                 {
                     selectCommand.Parameters.AddWithValue("@Id", id);
                     var existingPassword = selectCommand.ExecuteScalar() as string;
@@ -155,7 +155,7 @@ namespace backend.Controllers
                 }
 
                 var updateQuery = "UPDATE Registration SET Password = @NewPassword WHERE ID = @Id";
-                using (var updateCommand = new SqlCommand(updateQuery, connection))
+                using (var updateCommand = new NpgsqlCommand(updateQuery, connection))
                 {
                     updateCommand.Parameters.AddWithValue("@NewPassword", newPassword);
                     updateCommand.Parameters.AddWithValue("@Id", id);
@@ -167,3 +167,4 @@ namespace backend.Controllers
         }
     }
 }
+

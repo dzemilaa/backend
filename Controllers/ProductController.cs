@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.IO;
 
 namespace backend.Controllers
@@ -54,8 +54,8 @@ namespace backend.Controllers
             string imageFileName = uniqueFileName;
 
            
-            SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-            SqlCommand cmd = new SqlCommand("INSERT INTO Product (Name, Description, Price, Category, Image) VALUES (@Name, @Description, @Price, @Category, @Image)", con);
+            NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
+            NpgsqlCommand cmd = new NpgsqlCommand("INSERT INTO Product (Name, Description, Price, Category, Image) VALUES (@Name, @Description, @Price, @Category, @Image)", con);
 
       
             cmd.Parameters.AddWithValue("@Name", product.Name);
@@ -90,3 +90,4 @@ namespace backend.Controllers
         }
     }
 }
+

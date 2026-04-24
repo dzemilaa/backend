@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace backend.Controllers
 {
@@ -33,11 +33,11 @@ namespace backend.Controllers
                 return BadRequest(new { success = false, Message = "Invalid status. Status must be 'Pending', 'Out for delivery', or 'Delivered'." });
             }
 
-            using (var conn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+            using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
             {
-                string query = "UPDATE [Order] SET Status = @Status WHERE Id = @OrderId AND Status != 'Delivered'";
+                string query = "UPDATE \"Order\" SET Status = @Status WHERE Id = @OrderId AND Status != 'Delivered'";
 
-                var command = new SqlCommand(query, conn);
+                var command = new NpgsqlCommand(query, conn);
                 command.Parameters.AddWithValue("@Status", newStatus);
                 command.Parameters.AddWithValue("@OrderId", orderId);
 
@@ -65,3 +65,4 @@ namespace backend.Controllers
 
     }
 }
+

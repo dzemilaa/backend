@@ -1,8 +1,8 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace backend.Controllers
@@ -34,12 +34,12 @@ namespace backend.Controllers
 
             try
             {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+                using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
                 {
                     conn.Open();
 
            
-                    var command = new SqlCommand("SELECT c.Id FROM Carts c WHERE c.UserId = @UserId", conn);
+                    var command = new NpgsqlCommand("SELECT c.Id FROM Carts c WHERE c.UserId = @UserId", conn);
                     command.Parameters.AddWithValue("@UserId", userId);
                     var cartId = command.ExecuteScalar();
 
@@ -48,7 +48,7 @@ namespace backend.Controllers
                         return BadRequest(new { Message = "Cart is empty or does not exist." });
                     }
 
-                    command = new SqlCommand(@"
+                    command = new NpgsqlCommand(@"
             SELECT ci.ProductId, ci.Quantity, p.Price, p.Image 
             FROM CartItems ci 
             INNER JOIN Product p ON ci.ProductId = p.ProductId
@@ -77,7 +77,7 @@ namespace backend.Controllers
 
             
                     decimal totalAmount = cartItems.Sum(item => (decimal)item.Quantity * (decimal)item.Price);
-                    command = new SqlCommand("INSERT INTO [Order] (UserId, Address, TotalAmount, OrderDate, Status, FirstName, LastName, Email, Phone) OUTPUT INSERTED.Id VALUES (@UserId, @Address, @TotalAmount, @OrderDate, 'Pending', @FirstName, @LastName, @Email, @Phone)", conn);
+                    command = new NpgsqlCommand("INSERT INTO \"Order\" (UserId, Address, TotalAmount, OrderDate, Status, FirstName, LastName, Email, Phone) VALUES (@UserId, @Address, @TotalAmount, @OrderDate, 'Pending', @FirstName, @LastName, @Email, @Phone) RETURNING Id", conn);
                     command.Parameters.AddWithValue("@UserId", userId);
                     command.Parameters.AddWithValue("@Address", address);
                     command.Parameters.AddWithValue("@TotalAmount", totalAmount);
@@ -92,7 +92,7 @@ namespace backend.Controllers
              
                     foreach (var item in cartItems)
                     {
-                        command = new SqlCommand("INSERT INTO OrderItems (OrderId, ProductId, Quantity, Price, Image) VALUES (@OrderId, @ProductId, @Quantity, @Price, @Image)", conn);
+                        command = new NpgsqlCommand("INSERT INTO OrderItems (OrderId, ProductId, Quantity, Price, Image) VALUES (@OrderId, @ProductId, @Quantity, @Price, @Image)", conn);
                         command.Parameters.AddWithValue("@OrderId", orderId);
                         command.Parameters.AddWithValue("@ProductId", item.ProductId);
                         command.Parameters.AddWithValue("@Quantity", item.Quantity);
@@ -102,25 +102,25 @@ namespace backend.Controllers
                     }
 
           
-                    command = new SqlCommand("SELECT TOP 1 Image FROM OrderItems WHERE OrderId = @OrderId", conn);
+                    command = new NpgsqlCommand("SELECT Image FROM OrderItems WHERE OrderId = @OrderId LIMIT 1", conn);
                     command.Parameters.AddWithValue("@OrderId", orderId);
 
                     var image = command.ExecuteScalar();
 
                     if (image != null)
                     {
-                        command = new SqlCommand("UPDATE [Order] SET Image = @Image WHERE Id = @OrderId", conn);
+                        command = new NpgsqlCommand("UPDATE \"Order\" SET Image = @Image WHERE Id = @OrderId", conn);
                         command.Parameters.AddWithValue("@Image", image);
                         command.Parameters.AddWithValue("@OrderId", orderId);
                         command.ExecuteNonQuery();
                     }
 
              
-                    command = new SqlCommand("DELETE FROM CartItems WHERE CartId = @CartId", conn);
+                    command = new NpgsqlCommand("DELETE FROM CartItems WHERE CartId = @CartId", conn);
                     command.Parameters.AddWithValue("@CartId", cartId);
                     command.ExecuteNonQuery();
 
-                    command = new SqlCommand("DELETE FROM Carts WHERE UserId = @UserId", conn);
+                    command = new NpgsqlCommand("DELETE FROM Carts WHERE UserId = @UserId", conn);
                     command.Parameters.AddWithValue("@UserId", userId);
                     command.ExecuteNonQuery();
                 }
@@ -137,3 +137,4 @@ namespace backend.Controllers
 
     }
 }
+

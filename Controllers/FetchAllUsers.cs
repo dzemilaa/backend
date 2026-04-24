@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace backend.Controllers
 {
@@ -27,14 +27,14 @@ namespace backend.Controllers
             List<Registration> adminUsers = new List<Registration>();
             string connectionString = _configuration.GetConnectionString("BazaCon");
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT ID, UserName, Password, Email, IsActive FROM Registration WHERE IsActive = 1";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
                 {
                     connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (NpgsqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -60,16 +60,16 @@ namespace backend.Controllers
             Registration user = null;
             string connectionString = _configuration.GetConnectionString("BazaCon");
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT ID, UserName, Password, Email, IsActive FROM Registration WHERE ID = @UserId";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", userId);
 
                     connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (NpgsqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -99,10 +99,10 @@ namespace backend.Controllers
         {
             string connectionString = _configuration.GetConnectionString("BazaCon");
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "DELETE FROM Registration WHERE ID = @ID";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@ID", id);
                     connection.Open();
@@ -130,18 +130,18 @@ namespace backend.Controllers
             List<Registration> foundUsers = new List<Registration>();
             string connectionString = _configuration.GetConnectionString("BazaCon");
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 // Pretraga korisnika koji počinju sa unetim karakterom
                 string sqlQuery = "SELECT ID, UserName, Password, Email, IsActive FROM Registration WHERE IsActive = 1 AND (UserName LIKE @Query OR Email LIKE @Query)";
 
-                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(sqlQuery, connection))
                 {
                     // Dodajemo '!' wildcard na kraj upita da pretraga bude za pocetni karakter
                     command.Parameters.AddWithValue("@Query", query + "%");
                     connection.Open();
 
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (NpgsqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -170,3 +170,4 @@ namespace backend.Controllers
 
     }
 }
+

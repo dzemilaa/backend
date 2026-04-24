@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.IO;
 
 namespace backend.Controllers
@@ -25,15 +25,15 @@ namespace backend.Controllers
         {
             List<FetchProduct> productList = new List<FetchProduct>();
 
-            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
+            using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
                 string query = "SELECT ProductId, Name, Description, Price, Category, Image FROM Product";
-                SqlCommand cmd = new SqlCommand(query, con);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, con);
 
                 try
                 {
                     con.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -71,16 +71,16 @@ namespace backend.Controllers
         {
             FetchProduct product = null;
 
-            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
+            using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
                 string query = "SELECT ProductId, Name, Description, Price, Category, Image FROM Product WHERE ProductId = @ProductId";
-                SqlCommand cmd = new SqlCommand(query, con);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@ProductId", id);
 
                 try
                 {
                     con.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
 
                     if (reader.Read())
                     {
@@ -119,16 +119,16 @@ namespace backend.Controllers
         {
             List<FetchProduct> searchResults = new List<FetchProduct>();
 
-            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
+            using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
                 string query = "SELECT ProductId, Name, Description, Price, Category, Image FROM Product WHERE Name LIKE @SearchTerm";
-                SqlCommand cmd = new SqlCommand(query, con);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@SearchTerm", "%" + searchTerm + "%");
 
                 try
                 {
                     con.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -172,9 +172,9 @@ namespace backend.Controllers
 
             // Dohvati trenutnu sliku iz baze (ako postoji)
             string currentImageFileName = null;
-            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
+            using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                SqlCommand cmd = new SqlCommand("SELECT Image FROM Product WHERE ProductId = @ProductId", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("SELECT Image FROM Product WHERE ProductId = @ProductId", con);
                 cmd.Parameters.AddWithValue("@ProductId", request.ProductId);
 
                 try
@@ -207,9 +207,9 @@ namespace backend.Controllers
                 imageFileName = request.Image.FileName; // Pošaljemo ime fajla u bazi
             }
 
-            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
+            using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                SqlCommand cmd = new SqlCommand("UPDATE Product SET Name = @Name, Description = @Description, Price = @Price, Category = @Category, Image = @Image WHERE ProductId = @ProductId", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("UPDATE Product SET Name = @Name, Description = @Description, Price = @Price, Category = @Category, Image = @Image WHERE ProductId = @ProductId", con);
                 cmd.Parameters.AddWithValue("@ProductId", request.ProductId);
                 cmd.Parameters.AddWithValue("@Name", request.Name);
                 cmd.Parameters.AddWithValue("@Description", request.Description);
@@ -250,9 +250,9 @@ namespace backend.Controllers
                 return BadRequest("Invalid ProductId.");
             }
 
-            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
+            using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                SqlCommand cmd = new SqlCommand("DELETE FROM Product WHERE ProductId = @ProductId", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("DELETE FROM Product WHERE ProductId = @ProductId", con);
                 cmd.Parameters.AddWithValue("@ProductId", request.ProductId);
 
                 try
@@ -276,3 +276,4 @@ namespace backend.Controllers
         }
     }
 }
+

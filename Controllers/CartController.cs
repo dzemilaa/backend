@@ -1,8 +1,8 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 namespace backend.Controllers
 {
     [Route("api/[controller]")]
@@ -28,36 +28,36 @@ namespace backend.Controllers
 
             try
             {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+                using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
                 {
                     conn.Open();
 
-                    var command = new SqlCommand("SELECT Id FROM Carts WHERE UserId = @UserId", conn);
+                    var command = new NpgsqlCommand("SELECT Id FROM Carts WHERE UserId = @UserId", conn);
                     command.Parameters.AddWithValue("@UserId", request.UserId);
                     var cartId = command.ExecuteScalar();
 
                     if (cartId == null)
                     {
-                        command = new SqlCommand("INSERT INTO Carts (UserId) OUTPUT INSERTED.Id VALUES (@UserId)", conn);
+                        command = new NpgsqlCommand("INSERT INTO Carts (UserId) VALUES (@UserId) RETURNING Id", conn);
                         command.Parameters.AddWithValue("@UserId", request.UserId);
                         cartId = command.ExecuteScalar();
                     }
 
                   
-                    command = new SqlCommand("SELECT Id FROM CartItems WHERE CartId = @CartId AND ProductId = @ProductId", conn);
+                    command = new NpgsqlCommand("SELECT Id FROM CartItems WHERE CartId = @CartId AND ProductId = @ProductId", conn);
                     command.Parameters.AddWithValue("@CartId", cartId);
                     command.Parameters.AddWithValue("@ProductId", request.ProductId);
                     var cartItemId = command.ExecuteScalar();
 
                     if (cartItemId != null)
                     {
-                        command = new SqlCommand("UPDATE CartItems SET Quantity = Quantity + 1 WHERE Id = @CartItemId", conn);
+                        command = new NpgsqlCommand("UPDATE CartItems SET Quantity = Quantity + 1 WHERE Id = @CartItemId", conn);
                         command.Parameters.AddWithValue("@CartItemId", cartItemId);
                         command.ExecuteNonQuery();
                     }
                     else
                     {
-                        command = new SqlCommand("INSERT INTO CartItems (CartId, ProductId, Quantity) VALUES (@CartId, @ProductId, 1)", conn);
+                        command = new NpgsqlCommand("INSERT INTO CartItems (CartId, ProductId, Quantity) VALUES (@CartId, @ProductId, 1)", conn);
                         command.Parameters.AddWithValue("@CartId", cartId);
                         command.Parameters.AddWithValue("@ProductId", request.ProductId);
                         command.ExecuteNonQuery();
@@ -83,12 +83,12 @@ namespace backend.Controllers
 
             try
             {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+                using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
                 {
                     conn.Open();
 
                 
-                    var command = new SqlCommand("SELECT Id FROM Carts WHERE UserId = @UserId", conn);
+                    var command = new NpgsqlCommand("SELECT Id FROM Carts WHERE UserId = @UserId", conn);
                     command.Parameters.AddWithValue("@UserId", userId);
                     var cartId = command.ExecuteScalar();
 
@@ -98,7 +98,7 @@ namespace backend.Controllers
                     }
 
                  
-                    command = new SqlCommand(
+                    command = new NpgsqlCommand(
                         @"SELECT ci.ProductId, p.Name, p.Price, ci.Quantity, p.Image
                   FROM CartItems ci
                   JOIN Product p ON ci.ProductId = p.ProductId
@@ -146,11 +146,11 @@ namespace backend.Controllers
 
             try
             {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("BazaCon")))
+                using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon")))
                 {
                     conn.Open();
 
-                    var command = new SqlCommand("SELECT Id FROM Carts WHERE UserId = @UserId", conn);
+                    var command = new NpgsqlCommand("SELECT Id FROM Carts WHERE UserId = @UserId", conn);
                     command.Parameters.AddWithValue("@UserId", request.UserId);
                     var cartId = command.ExecuteScalar();
 
@@ -160,7 +160,7 @@ namespace backend.Controllers
                     }
 
                    
-                    command = new SqlCommand("SELECT Id, Quantity FROM CartItems WHERE CartId = @CartId AND ProductId = @ProductId", conn);
+                    command = new NpgsqlCommand("SELECT Id, Quantity FROM CartItems WHERE CartId = @CartId AND ProductId = @ProductId", conn);
                     command.Parameters.AddWithValue("@CartId", cartId);
                     command.Parameters.AddWithValue("@ProductId", request.ProductId);
                     var reader = command.ExecuteReader();
@@ -177,14 +177,14 @@ namespace backend.Controllers
                    
                     if (quantity > 1)
                     {
-                        command = new SqlCommand("UPDATE CartItems SET Quantity = Quantity - 1 WHERE Id = @CartItemId", conn);
+                        command = new NpgsqlCommand("UPDATE CartItems SET Quantity = Quantity - 1 WHERE Id = @CartItemId", conn);
                         command.Parameters.AddWithValue("@CartItemId", cartItemId);
                         command.ExecuteNonQuery();
                     }
                     else
                     {
                        
-                        command = new SqlCommand("DELETE FROM CartItems WHERE Id = @CartItemId", conn);
+                        command = new NpgsqlCommand("DELETE FROM CartItems WHERE Id = @CartItemId", conn);
                         command.Parameters.AddWithValue("@CartItemId", cartItemId);
                         command.ExecuteNonQuery();
                     }
@@ -201,3 +201,4 @@ namespace backend.Controllers
     }
 
 }
+

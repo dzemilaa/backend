@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using backend.Models;
 
 namespace backend.Controllers
@@ -32,15 +32,15 @@ namespace backend.Controllers
             }
 
             string connectionString = _configuration.GetConnectionString("BazaCon");
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using (NpgsqlConnection con = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     con.Open();
 
                     // Check if order exists
-                    string checkOrderQuery = "SELECT COUNT(*) FROM [Order] WHERE Id = @OrderId";
-                    using (SqlCommand cmd = new SqlCommand(checkOrderQuery, con))
+                    string checkOrderQuery = "SELECT COUNT(*) FROM \"Order\" WHERE Id = @OrderId";
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(checkOrderQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@OrderId", review.OrderId);
                         int orderExists = (int)cmd.ExecuteScalar();
@@ -52,7 +52,7 @@ namespace backend.Controllers
 
                     // Check if user exists
                     string checkUserQuery = "SELECT COUNT(*) FROM Registration WHERE ID = @UserId";
-                    using (SqlCommand cmd = new SqlCommand(checkUserQuery, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(checkUserQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@UserId", review.UserId);
                         int userExists = (int)cmd.ExecuteScalar();
@@ -65,10 +65,10 @@ namespace backend.Controllers
                     // Insert review into database
                     string insertQuery = @"
                 INSERT INTO Reviews (OrderId, UserId, ReviewText, CreatedAt)
-                VALUES (@OrderId, @UserId, @ReviewText, @CreatedAt);
-                SELECT SCOPE_IDENTITY();"; // Getting the ReviewId of the newly inserted review
+                VALUES (@OrderId, @UserId, @ReviewText, @CreatedAt)
+                RETURNING ReviewId;"; // Getting the ReviewId of the newly inserted review
 
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@OrderId", review.OrderId);
                         cmd.Parameters.AddWithValue("@UserId", review.UserId);
@@ -83,7 +83,7 @@ namespace backend.Controllers
                             string insertReviewProductQuery = @"
                         INSERT INTO ReviewProducts (ReviewId, ProductId)
                         VALUES (@ReviewId, @ProductId)";
-                            using (SqlCommand cmdProduct = new SqlCommand(insertReviewProductQuery, con))
+                            using (NpgsqlCommand cmdProduct = new NpgsqlCommand(insertReviewProductQuery, con))
                             {
                                 cmdProduct.Parameters.AddWithValue("@ReviewId", reviewId);
                                 cmdProduct.Parameters.AddWithValue("@ProductId", productId);
@@ -106,7 +106,7 @@ namespace backend.Controllers
         public IActionResult FetchAllReviews()
         {
             string connectionString = _configuration.GetConnectionString("BazaCon");
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using (NpgsqlConnection con = new NpgsqlConnection(connectionString))
             {
                 try
                 {
@@ -116,12 +116,12 @@ namespace backend.Controllers
                 SELECT r.ReviewId, r.OrderId, r.UserId, r.ReviewText, r.CreatedAt, 
                        o.TotalAmount, u.UserName 
                 FROM Reviews r
-                JOIN [Order] o ON r.OrderId = o.Id
+                JOIN ""Order"" o ON r.OrderId = o.Id
                 JOIN Registration u ON r.UserId = u.ID";
 
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, con))
                     {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             var reviews = new List<object>();
 
@@ -159,7 +159,7 @@ namespace backend.Controllers
             }
 
             string connectionString = _configuration.GetConnectionString("BazaCon");
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using (NpgsqlConnection con = new NpgsqlConnection(connectionString))
             {
                 try
                 {
@@ -169,16 +169,16 @@ namespace backend.Controllers
                 SELECT r.ReviewId, r.OrderId, r.UserId, r.ReviewText, r.CreatedAt, 
                        o.TotalAmount, u.UserName 
                 FROM Reviews r
-                JOIN [Order] o ON r.OrderId = o.Id
+                JOIN ""Order"" o ON r.OrderId = o.Id
                 JOIN Registration u ON r.UserId = u.ID
                 JOIN ReviewProducts rp ON rp.ReviewId = r.ReviewId
                 WHERE rp.ProductId = @ProductId";
 
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, con))
                     {
                         cmd.Parameters.AddWithValue("@ProductId", productId);
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             var reviews = new List<object>();
 
@@ -221,7 +221,7 @@ namespace backend.Controllers
             }
 
             string connectionString = _configuration.GetConnectionString("BazaCon");
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using (NpgsqlConnection con = new NpgsqlConnection(connectionString))
             {
                 try
                 {
@@ -229,7 +229,7 @@ namespace backend.Controllers
 
                     // Provera da li recenzija postoji
                     string checkReviewQuery = "SELECT COUNT(*) FROM Reviews WHERE ReviewId = @ReviewId";
-                    using (SqlCommand cmd = new SqlCommand(checkReviewQuery, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(checkReviewQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@ReviewId", reviewId);
                         int reviewExists = (int)cmd.ExecuteScalar();
@@ -241,7 +241,7 @@ namespace backend.Controllers
 
                     // Prvo brišemo povezane podatke u tabeli ReviewProducts
                     string deleteReviewProductsQuery = "DELETE FROM ReviewProducts WHERE ReviewId = @ReviewId";
-                    using (SqlCommand cmd = new SqlCommand(deleteReviewProductsQuery, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(deleteReviewProductsQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@ReviewId", reviewId);
                         cmd.ExecuteNonQuery();
@@ -249,7 +249,7 @@ namespace backend.Controllers
 
                     // Brisanje recenzije
                     string deleteReviewQuery = "DELETE FROM Reviews WHERE ReviewId = @ReviewId";
-                    using (SqlCommand cmd = new SqlCommand(deleteReviewQuery, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(deleteReviewQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@ReviewId", reviewId);
 
@@ -275,7 +275,7 @@ namespace backend.Controllers
         public IActionResult SearchReviews(string username = null, int? orderId = null)
         {
             string connectionString = _configuration.GetConnectionString("BazaCon");
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using (NpgsqlConnection con = new NpgsqlConnection(connectionString))
             {
                 try
                 {
@@ -286,7 +286,7 @@ namespace backend.Controllers
                 SELECT r.ReviewId, r.OrderId, r.UserId, r.ReviewText, r.CreatedAt, 
                        o.TotalAmount, u.UserName 
                 FROM Reviews r
-                JOIN [Order] o ON r.OrderId = o.Id
+                JOIN ""Order"" o ON r.OrderId = o.Id
                 JOIN Registration u ON r.UserId = u.ID
                 WHERE 1 = 1"; // Ovaj uslov omogućava jednostavno dodavanje dodatnih filtera
 
@@ -301,7 +301,7 @@ namespace backend.Controllers
                         query += " AND r.OrderId = @OrderId";
                     }
 
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, con))
                     {
                         if (!string.IsNullOrEmpty(username))
                         {
@@ -313,7 +313,7 @@ namespace backend.Controllers
                             cmd.Parameters.AddWithValue("@OrderId", orderId);
                         }
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             var reviews = new List<object>();
 
@@ -354,3 +354,4 @@ namespace backend.Controllers
 
     }
 }
+
