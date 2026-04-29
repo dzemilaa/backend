@@ -293,7 +293,7 @@ namespace backend.Controllers
                     // Dodaj filtere na osnovu prosleđenih parametara
                     if (!string.IsNullOrEmpty(username))
                     {
-                        query += " AND u.UserName LIKE @Username";
+                        query += " AND u.UserName ILIKE @Username";
                     }
 
                     if (orderId.HasValue)

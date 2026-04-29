@@ -1,4 +1,4 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -55,7 +55,7 @@ namespace backend.Controllers
 
            
             NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-            NpgsqlCommand cmd = new NpgsqlCommand("INSERT INTO Product (Name, Description, Price, Category, Image) VALUES (@Name, @Description, @Price, @Category, @Image)", con);
+            NpgsqlCommand cmd = new NpgsqlCommand("INSERT INTO \"Product\" (\"Name\", \"Description\", \"Price\", \"Category\", \"Image\") VALUES (@Name, @Description, @Price, @Category, @Image)", con);
 
       
             cmd.Parameters.AddWithValue("@Name", product.Name);

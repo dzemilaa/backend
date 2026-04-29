@@ -1,4 +1,4 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
@@ -133,7 +133,7 @@ namespace backend.Controllers
             using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 // Pretraga korisnika koji počinju sa unetim karakterom
-                string sqlQuery = "SELECT ID, UserName, Password, Email, IsActive FROM Registration WHERE IsActive = 1 AND (UserName LIKE @Query OR Email LIKE @Query)";
+                string sqlQuery = "SELECT ID, UserName, Password, Email, IsActive FROM Registration WHERE IsActive = 1 AND (UserName ILIKE @Query OR Email ILIKE @Query)";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sqlQuery, connection))
                 {

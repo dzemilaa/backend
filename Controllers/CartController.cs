@@ -99,9 +99,9 @@ namespace backend.Controllers
 
                  
                     command = new NpgsqlCommand(
-                        @"SELECT ci.ProductId, p.Name, p.Price, ci.Quantity, p.Image
-                  FROM CartItems ci
-                  JOIN Product p ON ci.ProductId = p.ProductId
+                        @"SELECT ci.Id, ci.ProductId, ci.Quantity, p.Name, p.Price, p.Image 
+                  FROM CartItems ci 
+                  JOIN ""Product"" p ON ci.ProductId = p.ProductId 
                   WHERE ci.CartId = @CartId", conn);
                     command.Parameters.AddWithValue("@CartId", cartId);
 

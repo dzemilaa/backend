@@ -61,7 +61,7 @@ namespace backend.Controllers
                                 var itemsCommand = new NpgsqlCommand(@"
                         SELECT oi.ProductId, oi.Quantity, oi.Price, oi.Image, p.Name, p.Description, p.Category 
                         FROM OrderItems oi 
-                        INNER JOIN Product p ON oi.ProductId = p.ProductId
+                        INNER JOIN ""Product"" p ON oi.ProductId = p.ProductId
                         WHERE oi.OrderId = @OrderId", itemConn);
                                 itemsCommand.Parameters.AddWithValue("@OrderId", orderId);
 

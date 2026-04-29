@@ -51,7 +51,7 @@ namespace backend.Controllers
                     command = new NpgsqlCommand(@"
             SELECT ci.ProductId, ci.Quantity, p.Price, p.Image 
             FROM CartItems ci 
-            INNER JOIN Product p ON ci.ProductId = p.ProductId
+            INNER JOIN ""Product"" p ON ci.ProductId = p.ProductId 
             WHERE ci.CartId = @CartId", conn);
                     command.Parameters.AddWithValue("@CartId", cartId);
 

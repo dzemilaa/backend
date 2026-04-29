@@ -1,4 +1,4 @@
-﻿using backend.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
@@ -27,7 +27,7 @@ namespace backend.Controllers
 
             using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                string query = "SELECT ProductId, Name, Description, Price, Category, Image FROM Product";
+                string query = "SELECT \"ProductId\", \"Name\", \"Description\", \"Price\", \"Category\", \"Image\" FROM \"Product\"";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, con);
 
                 try
@@ -40,11 +40,11 @@ namespace backend.Controllers
                         FetchProduct product = new FetchProduct
                         {
                             ProductId = Convert.ToInt32(reader["ProductId"]),
-                            Name = reader["Name"].ToString(),
-                            Description = reader["Description"].ToString(),
+                            Name = reader["Name"].ToString().Trim(),
+                            Description = reader["Description"].ToString().Trim(),
                             Price = Convert.ToDecimal(reader["Price"]),
-                            Category = reader["Category"].ToString(),
-                            Image = reader["Image"] != DBNull.Value ? reader["Image"].ToString() : null
+                            Category = reader["Category"].ToString().Trim(),
+                            Image = reader["Image"] != DBNull.Value ? reader["Image"].ToString().Trim() : null
                         };
                         productList.Add(product);
                     }
@@ -73,7 +73,7 @@ namespace backend.Controllers
 
             using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                string query = "SELECT ProductId, Name, Description, Price, Category, Image FROM Product WHERE ProductId = @ProductId";
+                string query = "SELECT \"ProductId\", \"Name\", \"Description\", \"Price\", \"Category\", \"Image\" FROM \"Product\" WHERE \"ProductId\" = @ProductId";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@ProductId", id);
 
@@ -87,11 +87,11 @@ namespace backend.Controllers
                         product = new FetchProduct
                         {
                             ProductId = Convert.ToInt32(reader["ProductId"]),
-                            Name = reader["Name"].ToString(),
-                            Description = reader["Description"].ToString(),
+                            Name = reader["Name"].ToString().Trim(),
+                            Description = reader["Description"].ToString().Trim(),
                             Price = Convert.ToDecimal(reader["Price"]),
-                            Category = reader["Category"].ToString(),
-                            Image = reader["Image"] != DBNull.Value ? reader["Image"].ToString() : null
+                            Category = reader["Category"].ToString().Trim(),
+                            Image = reader["Image"] != DBNull.Value ? reader["Image"].ToString().Trim() : null
                         };
                     }
                     reader.Close();
@@ -121,7 +121,7 @@ namespace backend.Controllers
 
             using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                string query = "SELECT ProductId, Name, Description, Price, Category, Image FROM Product WHERE Name LIKE @SearchTerm";
+                string query = "SELECT \"ProductId\", \"Name\", \"Description\", \"Price\", \"Category\", \"Image\" FROM \"Product\" WHERE \"Name\" ILIKE @SearchTerm";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@SearchTerm", "%" + searchTerm + "%");
 
@@ -135,11 +135,11 @@ namespace backend.Controllers
                         FetchProduct product = new FetchProduct
                         {
                             ProductId = Convert.ToInt32(reader["ProductId"]),
-                            Name = reader["Name"].ToString(),
-                            Description = reader["Description"].ToString(),
+                            Name = reader["Name"].ToString().Trim(),
+                            Description = reader["Description"].ToString().Trim(),
                             Price = Convert.ToDecimal(reader["Price"]),
-                            Category = reader["Category"].ToString(),
-                            Image = reader["Image"] != DBNull.Value ? reader["Image"].ToString() : null
+                            Category = reader["Category"].ToString().Trim(),
+                            Image = reader["Image"] != DBNull.Value ? reader["Image"].ToString().Trim() : null
                         };
                         searchResults.Add(product);
                     }
@@ -174,7 +174,7 @@ namespace backend.Controllers
             string currentImageFileName = null;
             using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                NpgsqlCommand cmd = new NpgsqlCommand("SELECT Image FROM Product WHERE ProductId = @ProductId", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("SELECT \"Image\" FROM \"Product\" WHERE \"ProductId\" = @ProductId", con);
                 cmd.Parameters.AddWithValue("@ProductId", request.ProductId);
 
                 try
@@ -209,7 +209,7 @@ namespace backend.Controllers
 
             using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                NpgsqlCommand cmd = new NpgsqlCommand("UPDATE Product SET Name = @Name, Description = @Description, Price = @Price, Category = @Category, Image = @Image WHERE ProductId = @ProductId", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("UPDATE \"Product\" SET \"Name\" = @Name, \"Description\" = @Description, \"Price\" = @Price, \"Category\" = @Category, \"Image\" = @Image WHERE \"ProductId\" = @ProductId", con);
                 cmd.Parameters.AddWithValue("@ProductId", request.ProductId);
                 cmd.Parameters.AddWithValue("@Name", request.Name);
                 cmd.Parameters.AddWithValue("@Description", request.Description);
@@ -252,7 +252,7 @@ namespace backend.Controllers
 
             using (NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString()))
             {
-                NpgsqlCommand cmd = new NpgsqlCommand("DELETE FROM Product WHERE ProductId = @ProductId", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("DELETE FROM \"Product\" WHERE \"ProductId\" = @ProductId", con);
                 cmd.Parameters.AddWithValue("@ProductId", request.ProductId);
 
                 try

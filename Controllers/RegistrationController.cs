@@ -134,7 +134,7 @@ namespace backend.Controllers
                 var email = principal.FindFirstValue(ClaimTypes.Email);
 
                 NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-                NpgsqlCommand cmd = new NpgsqlCommand("UPDATE Registration SET IsVerified = 1 WHERE Email = @Email", con);
+                NpgsqlCommand cmd = new NpgsqlCommand("UPDATE Registration SET IsVerified = true WHERE Email = @Email", con);
                 cmd.Parameters.AddWithValue("@Email", email);
 
                 con.Open();
@@ -184,7 +184,7 @@ namespace backend.Controllers
         public IActionResult login(Login registration)
         {
             NpgsqlConnection con = new NpgsqlConnection(_configuration.GetConnectionString("BazaCon").ToString());
-            NpgsqlDataAdapter da = new NpgsqlDataAdapter("SELECT * FROM Registration WHERE Email=@Email AND Password=@Password AND IsActive=1 AND IsVerified=1", con);
+            NpgsqlDataAdapter da = new NpgsqlDataAdapter("SELECT * FROM Registration WHERE Email=@Email AND Password=@Password AND IsActive=1 AND IsVerified=true", con);
             da.SelectCommand.Parameters.AddWithValue("@Email", registration.Email);
             da.SelectCommand.Parameters.AddWithValue("@Password", registration.Password);
             DataTable dt = new DataTable();
