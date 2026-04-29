@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "18DrDKAQcQU=",
+  "dgSpecHash": "F/ejPPbz2Yw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\dzemi\\Documents\\GitHub\\backend\\backend.csproj",
+  "projectFilePath": "C:\\Users\\dzemi\\Documents\\GitHub\\bella-restourant-app\\backend\\backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.12\\microsoft.aspnetcore.authentication.jwtbearer.8.0.12.nupkg.sha512",
     "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.12\\microsoft.entityframeworkcore.8.0.12.nupkg.sha512",
@@ -32,10 +32,10 @@
     "C:\\Users\\dzemi\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.6.2\\swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
     "C:\\Users\\dzemi\\.nuget\\packages\\system.diagnostics.diagnosticsource\\9.0.11\\system.diagnostics.diagnosticsource.9.0.11.nupkg.sha512",
     "C:\\Users\\dzemi\\.nuget\\packages\\system.identitymodel.tokens.jwt\\7.1.2\\system.identitymodel.tokens.jwt.7.1.2.nupkg.sha512",
-    "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.24\\microsoft.aspnetcore.app.ref.8.0.24.nupkg.sha512",
-    "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.24\\microsoft.netcore.app.host.win-x64.8.0.24.nupkg.sha512",
     "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.24\\microsoft.netcore.app.ref.8.0.24.nupkg.sha512",
-    "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.24\\microsoft.windowsdesktop.app.ref.8.0.24.nupkg.sha512"
+    "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.24\\microsoft.windowsdesktop.app.ref.8.0.24.nupkg.sha512",
+    "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.24\\microsoft.aspnetcore.app.ref.8.0.24.nupkg.sha512",
+    "C:\\Users\\dzemi\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.24\\microsoft.netcore.app.host.win-x64.8.0.24.nupkg.sha512"
   ],
   "logs": []
 }
